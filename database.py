@@ -25,15 +25,25 @@ def criar_tabela():
     conn.close()
 
 #cadastra um novo aluno
-def cadastrar_aluno(nome , idade , nota):
+#o : str é pra tipar o nome e poder dar o strip()
+def cadastrar_aluno(nome: str , idade , nota):
 
-    conn = conectar()
-    cursor = conn.cursor()
-    
-    cursor.execute("INSERT INTO alunos (nome, idade, nota) VALUES (? , ? , ?)" , (nome , idade , nota))
+    #strip retira os whitespaces e joga um valor default pra dentro (None) se tiver nulo
+    if nome.strip() == "":
+        return "Nome do aluno não pode estar vazio"
+
+    elif idade > 22:
+        return "Idade acima de 22 anos"
+
+    else:
+        conn = conectar()
+        cursor = conn.cursor()
+
+        cursor.execute("INSERT INTO alunos (nome, idade, nota) VALUES (? , ? , ?)" , (nome , idade , nota))
 
     conn.commit()
     conn.close()
+    return "Aluno cadastrado com sucesso!"
 
 
 #busca um aluno por nome
@@ -73,21 +83,30 @@ def buscar_aluno_id(busca_id):
 #mudar aluno
 def atualizar_aluno(nome , idade , nota , id):
 
+    #if tudo nao nulo:
+
     conn = conectar()
     cursor = conn.cursor()
 
     cursor.execute("UPDATE alunos SET nome = ? , idade = ? , nota = ? WHERE id = ?" , (nome , idade , nota , id))
-
+    
     conn.commit()
     conn.close()
+    return "Aluno atualizado!"
 
 #deletar aluno
 def deletar_aluno(id):
-    
-    conn = conectar()
-    cursor = conn.cursor()
-    
-    cursor.execute("DELETE FROM alunos WHERE id = ?" , (id,))
+    if id > 0:
+            
+        conn = conectar()
+        cursor = conn.cursor()
+        
+        cursor.execute("DELETE FROM alunos WHERE id = ?" , (id,))
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
+
+        return f"O aluno de ID {id}, foi deletado"
+
+    else:
+        return "ID inserido é invalido"
