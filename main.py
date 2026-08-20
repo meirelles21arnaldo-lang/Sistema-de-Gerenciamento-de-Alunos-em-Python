@@ -21,10 +21,12 @@ match resp:
                         pega_idade = st.number_input("Idade", value = 10 , min_value= 10 , max_value= 100)
                         pega_nota = st.number_input("Nota", value=0.0, step=0.5, min_value=0.0, max_value=10.0)
 
-                        btn_form = st.form_submit_button("Enviar")
+                        btn_cadastrar = st.form_submit_button("Enviar")
 
-                if btn_form:
-                        db.cadastrar_aluno(pega_nome , pega_idade , pega_nota)
+                if btn_cadastrar:
+                        msg = db.cadastrar_aluno(pega_nome , pega_idade , pega_nota)
+                        st.warning(msg)
+                        
 
         #Busca um aluno e exibe uma lista
         case "Buscar Aluno":
@@ -34,9 +36,9 @@ match resp:
                 #Busca por ID
                 if busca == "ID":
                         pega_id = st.number_input("Digite o ID do Aluno:", min_value=1 , step=1)
-                        btn = st.button("Buscar")
+                        btn_busca_id = st.button("Buscar")
 
-                        if btn:
+                        if btn_busca_id:
                                 aluno = db.buscar_aluno_id(pega_id)
 
                                 if aluno:
@@ -56,9 +58,9 @@ match resp:
                 #Busca por Nome
                 elif busca == "Nome":
                         pega_nome = st.text_input("Digite o Nome do Aluno:")
-                        btn = st.button("Buscar")
+                        btn_busca_nome = st.button("Buscar")
 
-                        if btn:
+                        if btn_busca_nome:
                                 aluno = db.buscar_aluno_nome(pega_nome)
 
                                 if aluno:
@@ -87,17 +89,19 @@ match resp:
                         nova_idade = st.number_input("Nova Idade", value = 10 , min_value= 10 , max_value= 100)
                         nova_nota = st.number_input("Nova Nota", value=0.0, step=0.5, min_value=0.0, max_value=10.0)
 
-                        btn_form = st.form_submit_button("Enviar")
+                        btn_atualizar = st.form_submit_button("Enviar")
 
-                if btn_form:
-                        db.atualizar_aluno(novo_nome , nova_idade , nova_nota, id_aluno)
+                if btn_atualizar:
+                        msg = db.atualizar_aluno(novo_nome , nova_idade , nova_nota, id_aluno)
+                        st.success(msg)
 
 
         #deleta o aluno por id
         case "Deletar Aluno":
-                with st.form("formulario deletar"):
-                        id_aluno = st.number_input("Insira o ID do aluno a ser excluído", step=0)
-                        btn_form = st.form_submit_button("Enviar")
+                with st.form("Formulário Deletar"):
+                        id_aluno = st.number_input("Insira o ID do aluno a ser executado", value=1 , step=1 , min_value=1)
+                        btn_deletar = st.form_submit_button("Enviar" , help="Ao clicar, delete um aluno")
 
-                if btn_form:
-                        db.deletar_aluno(id_aluno)
+                if btn_deletar:
+                        msg = db.deletar_aluno(id_aluno)
+                        st.success(msg)
