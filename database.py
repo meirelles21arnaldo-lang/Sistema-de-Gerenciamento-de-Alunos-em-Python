@@ -1,13 +1,9 @@
-import sqlite3 as sql
-#importa o sql
+import sqlite3
 
-#cria uma funcao para se conectar ao banco de dados
 def conectar():
-    conn = sql.connect("escola.db")
+    conn = sqlite3.connect("escola.db")
     return conn
 
-
-#cria funcao para criar tabela
 def criar_tabela():
 
     conn = conectar()
@@ -15,84 +11,33 @@ def criar_tabela():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS alunos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        idade INTEGER NOT NULL,
-        nota REAL)
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            idade INTEGER NOT NULL,
+            nota REAL)
     """)
 
     conn.commit()
     conn.close()
 
-#cadastra um novo aluno
-#o : str é pra tipar o nome e poder dar o strip()
-def cadastrar_aluno(nome: str , idade , nota):
+def cadastro_aluno(nome: str, idade, nota):
 
-    #strip retira os whitespaces e joga um valor default pra dentro (None) se tiver nulo
     if nome.strip() == "":
-        return "Nome do aluno não pode estar vazio"
-
+        return "Nome do aluno não pode ficar em branco."
+    
     elif idade > 22:
-        return "Idade acima de 22 anos"
-
+        return "Idade acima de 22 anos."
+    
     else:
         conn = conectar()
         cursor = conn.cursor()
 
-        cursor.execute("INSERT INTO alunos (nome, idade, nota) VALUES (? , ? , ?)" , (nome , idade , nota))
+        cursor.execute("INSERT INTO alunos (nome, idade, nota) VALUES (?, ?, ?)", (nome, idade, nota))  
 
-    conn.commit()
-    conn.close()
-    return "Aluno cadastrado com sucesso!"
+        conn.commit()
+        conn.close()
 
-
-#busca um aluno por nome
-def buscar_aluno_nome(busca_nome):
-
-    conn = conectar()
-    cursor = conn.cursor()
-
-    #a vírgula é pq é uma tupla de 1
-    cursor.execute("SELECT * FROM alunos WHERE nome = ?" , (busca_nome,))
-
-    #pega a lista e guarda em alunos
-    alunos = cursor.fetchall()
-
-    #sem commit já que não altera o banco de dados
-    conn.close()
-
-    return alunos
-
-#busca um aluno por ID
-def buscar_aluno_id(busca_id):
-
-    conn = conectar()
-    cursor = conn.cursor()
-
-    #a vírgula é pq é uma tupla de 1
-    cursor.execute("SELECT * FROM alunos WHERE id = ?" , (busca_id,))
-
-    #pega a lista e guarda em alunos
-    alunos = cursor.fetchall()
-
-    #sem commit já que não altera o banco de dados
-    conn.close()
-
-    return alunos
-
-#mudar aluno
-def atualizar_aluno(nome , idade , nota , id):
-
-    #if tudo nao nulo:
-
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute("UPDATE alunos SET nome = ? , idade = ? , nota = ? WHERE id = ?" , (nome , idade , nota , id))
-    
-    conn.commit()
-    conn.close()
-    return "Aluno atualizado!"
+        return "Aluno cadastrado com sucesso!"
 
 #deletar aluno
 def deletar_aluno(id):
@@ -110,3 +55,45 @@ def deletar_aluno(id):
 
     else:
         return "ID inserido é invalido"
+
+
+#mudar aluno
+def update_idade_aluno(id_aluno, idade):   #mas no update o cliente pode quebrar a regra de ngc da idade máx, ent tem q validar isso
+
+#quebra de regra de ngc
+    if idade > 22:
+        return "Idade acima de 22 anos não é permitida!"
+
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE alunos SET idade = ? WHERE id = ?" , (idade , id_aluno))
+    rows_affected = cursor.rowcount #atributo n encapsulado
+
+#caso de glória :) "happy path"
+    if rows_affected > 0:
+        conn.commit()
+        conn.close()
+
+        return rows_affected
+
+    #aluno inexistente
+    else:
+        return f"Aluno com ID = {id}, não encontrado"
+
+
+def getAlunos():
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM alunos")
+
+    dados_alunos = cursor.fetchall()
+
+    conn.close()
+    return dados_alunos
+
+#encapsulamento é publico ou privado - modificadores de acesso
+#tupla(tipo do retorno de dados)
+# insert, delete, update, select
+# fet - pega o retorno do select
