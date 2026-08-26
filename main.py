@@ -1,107 +1,59 @@
 import streamlit as st
 import database as db
 
-#roda o criar tabela
 db.criar_tabela()
 
-#front-end
-st.title("Sistema de Gerenciamento da Escola", text_alignment="center")
-st.subheader("Cadastro, busca, atualização e remoção de alunos", text_alignment="center")
+st.title("Painel de Gestão de Alunos", text_alignment="center")
 
-resp = st.selectbox("Ação Desejada:" , ["Cadastrar Aluno" , "Buscar Aluno" , "Deletar Aluno" , "Atualizar Aluno"])
+st.markdown("#### --- Cadastro Alunos ---", text_alignment="center")
+with st.form("cadastro_aluno"):
 
-#switch case para diferentes telas
-match resp:
+    nome = st.text_input("Preecha com o NOME COMPLETO do aluno")#nome do aluno 
+    idade = st.number_input("Preecha com a IDADE do aluno", value=50)#idade do aluno, e o step é o valor para pularde 1 em 1
+    nota = st.number_input("Preecha com a NOTA do aluno", min_value=0.0, max_value=10.0, step=0.5)
+    data = st.date_input("Data de Nascimento", value="today")
 
-        #Cadastra o aluno com formulário
-        case "Cadastrar Aluno":
-                with st.form("nome_do_formulario"):
-                        #formulario do site
-                        pega_nome = st.text_input("Nome")
-                        pega_idade = st.number_input("Idade", value = 10 , min_value= 10 , max_value= 100)
-                        pega_nota = st.number_input("Nota", value=0.0, step=0.5, min_value=0.0, max_value=10.0)
+    btn_from= st.form_submit_button("Enviar")
 
-                        btn_cadastrar = st.form_submit_button("Enviar")
+if btn_from:
+    msg = db.criar_aluno(nome, idade, nota)
+    st.warning(msg)
 
-                if btn_cadastrar:
-                        msg = db.cadastrar_aluno(pega_nome , pega_idade , pega_nota)
-                        st.warning(msg)
-                        
+st.markdown("#### --- Exclusão de Aluno ---", text_alignment="center")
+with st.form("deletar_aluno"):
+    id_aluno = st.number_input("ID do Aluno", value=0, step=1, min_value=0)
 
-        #Busca um aluno e exibe uma lista
-        case "Buscar Aluno":
-                st.text("Realizar busca do aluno por:")
-                busca = st.selectbox("ID ou Nome" , ["ID" , "Nome"])
+    btn_delete_aluno = st.form_submit_button("Deletar", 
+    help= "Ao clicar aqui você deleta um aluno")
+# help= "Ao clicar aqui você deleta um aluno" é a mensagem que aparece quando o mouse fica em cima do botãos
+if btn_delete_aluno:
+        msg = db.deletar_aluno(id_aluno)
+        st.success(msg)
 
-                #Busca por ID
-                if busca == "ID":
-                        pega_id = st.number_input("Digite o ID do Aluno:", min_value=1 , step=1)
-                        btn_busca_id = st.button("Buscar")
+#muda o nome, idade e nota de um aluno por id
+st.markdown("--- Alteração de cadastro de alunos ---", text_alignment="center")
+with st.form("form_update_aluno"):
+        id_aluno = st.number_input("ID do aluno", value=0, step=1, min_value=0)          
+        idade = st.number_input("Idade", value=0)
 
-                        if btn_busca_id:
-                                aluno = db.buscar_aluno_id(pega_id)
+        btn_update_aluno = st.form_submit_button("Alterar")
 
-                                if aluno:
-                                        for item in aluno:
-                                                aluno_id , aluno_nome , aluno_idade , aluno_nota = item
+if btn_update_aluno:
+        msg = db.update_idade_aluno(id_aluno, idade) 
 
-                                                with st.container():
-                                                        st.text(f"Id: {aluno_id}")
-                                                        st.text(f"Nome: {aluno_nome}")
-                                                        st.text(f"Idade: {aluno_idade}")
-                                                        st.text(f"Nota: {aluno_nota}")
-                                                        st.text("--------------------")
+        if msg == 1:
+                st.success("Aluno alterado com glória!") 
+        else:
+                st.error(msg)
 
-                                else:
-                                        st.warning("Nenhum aluno encontrado.")
+st.markdown("#### --- Lista de Alunos Cadastrados ---" , text_alignment="center")
 
-                #Busca por Nome
-                elif busca == "Nome":
-                        pega_nome = st.text_input("Digite o Nome do Aluno:")
-                        btn_busca_nome = st.button("Buscar")
+listaAlunos = db.getAlunos()
 
-                        if btn_busca_nome:
-                                aluno = db.buscar_aluno_nome(pega_nome)
+if listaAlunos == None:
+        st.warning("Não há alunos cadastrados!")
+else:
+        dataAlunos = [{"ID" : aluno[0], "Nome": aluno [1] , "Idade": aluno[2] , 
+                        "Nota": aluno[3] } for aluno in listaAlunos]
 
-                                if aluno:
-                                        for item in aluno:
-                                                aluno_id , aluno_nome , aluno_idade , aluno_nota = item
-
-                                                with st.container():
-                                                        st.text(f"Id: {aluno_id}")
-                                                        st.text(f"Nome: {aluno_nome}")
-                                                        st.text(f"Idade: {aluno_idade}")
-                                                        st.text(f"Nota: {aluno_nota}")
-                                                        st.text("--------------------")
-
-                                else:
-                                        st.warning("Nenhum aluno encontrado.")
-                        
-
-
-
-        #muda o nome, idade e nota de um aluno por id
-        case "Atualizar Aluno":
-                with st.form("nome_do_formulario"):
-                        #formulario do site
-                        id_aluno = st.number_input ("Insira o ID do aluno:", value=0)
-                        novo_nome = st.text_input("Novo Nome")
-                        nova_idade = st.number_input("Nova Idade", value = 10 , min_value= 10 , max_value= 100)
-                        nova_nota = st.number_input("Nova Nota", value=0.0, step=0.5, min_value=0.0, max_value=10.0)
-
-                        btn_atualizar = st.form_submit_button("Enviar")
-
-                if btn_atualizar:
-                        msg = db.atualizar_aluno(novo_nome , nova_idade , nova_nota, id_aluno)
-                        st.success(msg)
-
-
-        #deleta o aluno por id
-        case "Deletar Aluno":
-                with st.form("Formulário Deletar"):
-                        id_aluno = st.number_input("Insira o ID do aluno a ser executado", value=1 , step=1 , min_value=1)
-                        btn_deletar = st.form_submit_button("Enviar" , help="Ao clicar, delete um aluno")
-
-                if btn_deletar:
-                        msg = db.deletar_aluno(id_aluno)
-                        st.success(msg)
+        st.dataframe(dataAlunos, width="stretch")
