@@ -1,7 +1,7 @@
 import sqlite3
 
-def conectar():
-    conn = sqlite3.connect("escola.db")
+def conectar(nome_banco = "escola.db"):
+    conn = sqlite3.connect(nome_banco)
     return conn
 
 #o nome_banco = escola e o valor padrao, logo se eu nao passar nada, e o escola.db, se eu passar, vira outro  
