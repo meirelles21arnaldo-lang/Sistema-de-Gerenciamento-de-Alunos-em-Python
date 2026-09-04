@@ -21,7 +21,7 @@ def criar_tabela(nome_banco = "escola.db"):
     conn.commit()
     conn.close()
 
-def cadastro_aluno(nome: str, idade, nota):
+def cadastro_aluno(nome: str, idade, nota ,nome_banco = "escola.db"):
 
     if nome.strip() == "":
         return "Nome do aluno não pode ficar em branco."
@@ -30,7 +30,7 @@ def cadastro_aluno(nome: str, idade, nota):
         return "Idade acima de 22 anos."
     
     else:
-        conn = conectar()
+        conn = conectar(nome_banco)
         cursor = conn.cursor()
 
         cursor.execute("INSERT INTO alunos (nome, idade, nota) VALUES (?, ?, ?)", (nome, idade, nota))  
@@ -41,10 +41,10 @@ def cadastro_aluno(nome: str, idade, nota):
         return "Aluno cadastrado com sucesso!"
 
 #deletar aluno
-def deletar_aluno(id):
+def deletar_aluno(id , nome_banco = "escola.db"):
     if id > 0:
             
-        conn = conectar()
+        conn = conectar(nome_banco)
         cursor = conn.cursor()
         
         cursor.execute("DELETE FROM alunos WHERE id = ?" , (id,))
@@ -59,13 +59,13 @@ def deletar_aluno(id):
 
 
 #mudar aluno
-def update_idade_aluno(id_aluno, idade):   #mas no update o cliente pode quebrar a regra de ngc da idade máx, ent tem q validar isso
+def update_idade_aluno(id_aluno, idade , nome_banco = "escola.db"):   #mas no update o cliente pode quebrar a regra de ngc da idade máx, ent tem q validar isso
 
 #quebra de regra de ngc
     if idade > 22:
         return "Idade acima de 22 anos não é permitida!"
 
-    conn = conectar()
+    conn = conectar(nome_banco)
     cursor = conn.cursor()
 
     cursor.execute("UPDATE alunos SET idade = ? WHERE id = ?" , (idade , id_aluno))
@@ -83,8 +83,8 @@ def update_idade_aluno(id_aluno, idade):   #mas no update o cliente pode quebrar
         return f"Aluno com ID = {id}, não encontrado"
 
 
-def getAlunos():
-    conn = conectar()
+def getAlunos(nome_banco = "escola.db"):
+    conn = conectar(nome_banco)
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM alunos")
