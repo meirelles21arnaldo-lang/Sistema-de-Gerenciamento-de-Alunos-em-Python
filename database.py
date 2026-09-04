@@ -4,9 +4,10 @@ def conectar():
     conn = sqlite3.connect("escola.db")
     return conn
 
-def criar_tabela():
+#o nome_banco = escola e o valor padrao, logo se eu nao passar nada, e o escola.db, se eu passar, vira outro  
+def criar_tabela(nome_banco = "escola.db"):
 
-    conn = conectar()
+    conn = conectar(nome_banco)
     cursor = conn.cursor()
 
     cursor.execute("""
