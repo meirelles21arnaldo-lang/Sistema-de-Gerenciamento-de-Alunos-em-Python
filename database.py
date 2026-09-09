@@ -28,7 +28,10 @@ def cadastro_aluno(nome: str, idade, nota ,nome_banco = "escola.db"):
     
     elif idade > 22:
         return "Idade acima de 22 anos."
-    
+
+    elif nota > 10 or nota < 0:
+        return "Nota não pode ser maior que 10 e/ou menor que 0"
+        
     else:
         conn = conectar(nome_banco)
         cursor = conn.cursor()
